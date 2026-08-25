@@ -6,67 +6,81 @@ import io
 st.set_page_config(page_title="UID Timetable Generator", layout="wide")
 
 # ---------------------------------------------------------
-# MASTER DATA: COURSES & CURRICULUM
+# 1. MASTER COURSE & CURRICULUM CATALOG
 # ---------------------------------------------------------
-MASTER_COURSES = [
-    # 3rd Sem B.Des PD
-    {"code": "UC012030001", "title": "Personality Development", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "III"},
-    {"code": "31203001203", "title": "Design Research", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "III"},
-    {"code": "31203006211", "title": "Product Visualization", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "III"},
-    {"code": "31203006212", "title": "Form, Aesthetic and Emotion", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "III"},
-    {"code": "31203006207", "title": "Studio- Human Centric Design", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "III"},
-    {"code": "31203006213", "title": "Design Articulation with AI", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "III"},
-    {"code": "31203006214", "title": "Indian Design System", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "III"},
-
-    # 5th Sem B.Des PD
-    {"code": "UC013050001", "title": "CAID", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "V"},
-    {"code": "31305001325", "title": "Conceptualization and Characterization", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "V"},
-    {"code": "31305001326", "title": "Ad Film Production", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "V"},
-    {"code": "31305001327", "title": "Fashion Styling", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "V"},
-    {"code": "31305001328", "title": "Space Perception", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "V"},
-    {"code": "31305001329", "title": "UX/UI", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "V"},
-    {"code": "31305001330", "title": "The Art of Delightful Design", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "V"},
-    {"code": "31305001331", "title": "Speed Modelling in Clay", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "V"},
-    {"code": "31305006322", "title": "Human Factors", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "V"},
-    {"code": "31305006323", "title": "Portfolio with AI", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "V"},
-    {"code": "31305006324", "title": "Studio- Humanizing Technology", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "V"},
-    {"code": "31305006325", "title": "Experience Design", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "V"},
-    {"code": "31305006326", "title": "Packaging Design", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "V"},
-    {"code": "31305006327", "title": "Speculative design", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "V"},
-
-    # 7th Sem B.Des PD
-    {"code": "31407001400", "title": "Design Management", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "VII"},
-    {"code": "31407006403", "title": "Internship", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "VII"},
-    {"code": "31407006404", "title": "Studio- System Analysis and Design", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "VII"},
-
-    # 1st Sem M.Des ID
-    {"code": "32101001500", "title": "Professional Communication", "program": "M.Design (Industrial Design)", "program_code": "1025", "sem": "I"},
-    {"code": "32101002501", "title": "Design Foundation", "program": "M.Design (Industrial Design)", "program_code": "1025", "sem": "I"},
-    {"code": "32101002502", "title": "Form Studies", "program": "M.Design (Industrial Design)", "program_code": "1025", "sem": "I"},
-    {"code": "32101002503", "title": "Design Studio I", "program": "M.Design (Industrial Design)", "program_code": "1025", "sem": "I"},
-    {"code": "32101002504", "title": "Design Prototyping", "program": "M.Design (Industrial Design)", "program_code": "1025", "sem": "I"},
-    {"code": "32101002505", "title": "Frugal Innovation", "program": "M.Design (Industrial Design)", "program_code": "1025", "sem": "I"},
-    {"code": "32101002506", "title": "Emergent Technology", "program": "M.Design (Industrial Design)", "program_code": "1025", "sem": "I"},
-    {"code": "32101002507", "title": "CAID & Visualization with AI", "program": "M.Design (Industrial Design)", "program_code": "1025", "sem": "I"},
-
-    # 3rd Sem M.Des ID
-    {"code": "32203001602", "title": "Internship", "program": "M.Design (Industrial Design)", "program_code": "1025", "sem": "III"},
-    {"code": "32203001603", "title": "Entrepreneurship", "program": "M.Design (Industrial Design)", "program_code": "1025", "sem": "III"},
-    {"code": "32203001604", "title": "Research Methodology", "program": "M.Design (Industrial Design)", "program_code": "1025", "sem": "III"},
-    {"code": "32203002609", "title": "User Experience Design", "program": "M.Design (Industrial Design)", "program_code": "1025", "sem": "III"},
-    {"code": "32203002610", "title": "Studio- Design and Technology", "program": "M.Design (Industrial Design)", "program_code": "1025", "sem": "III"},
-    {"code": "32203002611", "title": "Lighting Design", "program": "M.Design (Industrial Design)", "program_code": "1025", "sem": "III"},
-    {"code": "32203002612", "title": "Craft and Technology", "program": "M.Design (Industrial Design)", "program_code": "1025", "sem": "III"},
+COURSES_DATA = [
+    # 1st Sem B.Des (PSD) Batch 2026-30
+    {"code": "26UDU01001", "title": "Design Essentials", "sem": "I", "prog_code": "1019", "batch": "1st Sem B.Des (PSD) 2026-30"},
+    {"code": "26UDU01002", "title": "Visual Representation Skills", "sem": "I", "prog_code": "1019", "batch": "1st Sem B.Des (PSD) 2026-30"},
+    {"code": "26UDU01103", "title": "Materials and Craftsmanship I", "sem": "I", "prog_code": "1019", "batch": "1st Sem B.Des (PSD) 2026-30"},
+    {"code": "26UDU01204", "title": "Colour and Form", "sem": "I", "prog_code": "1019", "batch": "1st Sem B.Des (PSD) 2026-30"},
+    {"code": "26UDU01305", "title": "History of Art & Design", "sem": "I", "prog_code": "1019", "batch": "1st Sem B.Des (PSD) 2026-30"},
+    {"code": "26UDU01406", "title": "Fundamentals of AI", "sem": "I", "prog_code": "1019", "batch": "1st Sem B.Des (PSD) 2026-30"},
+    {"code": "26UDU01607", "title": "Digital Tools", "sem": "I", "prog_code": "1019", "batch": "1st Sem B.Des (PSD) 2026-30"},
+    
+    # 3rd Sem B.Des Product Design Batch 2025-29
+    {"code": "UC012030001", "title": "Personality Development", "sem": "III", "prog_code": "1019", "batch": "3rd Sem B.Des PD 2025-29"},
+    {"code": "31203001203", "title": "Design Research", "sem": "III", "prog_code": "1019", "batch": "3rd Sem B.Des PD 2025-29"},
+    {"code": "31203006211", "title": "Product Visualization", "sem": "III", "prog_code": "1019", "batch": "3rd Sem B.Des PD 2025-29"},
+    {"code": "31203006212", "title": "Form, Aesthetic and Emotion", "sem": "III", "prog_code": "1019", "batch": "3rd Sem B.Des PD 2025-29"},
+    {"code": "31203006207", "title": "Studio- Human Centric Design", "sem": "III", "prog_code": "1019", "batch": "3rd Sem B.Des PD 2025-29"},
+    {"code": "31203006215", "title": "Design Articulation with AI", "sem": "III", "prog_code": "1019", "batch": "3rd Sem B.Des PD 2025-29"},
+    {"code": "31203006214", "title": "Indian Design System", "sem": "III", "prog_code": "1019", "batch": "3rd Sem B.Des PD 2025-29"},
+    
+    # 5th Sem B.Des Product Design Batch 2024-28
+    {"code": "31305006328", "title": "CAID", "sem": "V", "prog_code": "1019", "batch": "5th Sem B.Des PD 2024-28"},
+    {"code": "31305001303", "title": "Conceptualization & Characterization", "sem": "V", "prog_code": "1019", "batch": "5th Sem B.Des PD 2024-28"},
+    {"code": "31305001304", "title": "Speed Modelling in Clay", "sem": "V", "prog_code": "1019", "batch": "5th Sem B.Des PD 2024-28"},
+    {"code": "31305001306", "title": "Space Perception", "sem": "V", "prog_code": "1019", "batch": "5th Sem B.Des PD 2024-28"},
+    {"code": "31305001324", "title": "Matte-Painting", "sem": "V", "prog_code": "1019", "batch": "5th Sem B.Des PD 2024-28"},
+    {"code": "31305001325", "title": "Ad Film Production", "sem": "V", "prog_code": "1019", "batch": "5th Sem B.Des PD 2024-28"},
+    {"code": "31305001326", "title": "Fashion Styling", "sem": "V", "prog_code": "1019", "batch": "5th Sem B.Des PD 2024-28"},
+    {"code": "31305001327", "title": "UX/UI", "sem": "V", "prog_code": "1019", "batch": "5th Sem B.Des PD 2024-28"},
+    {"code": "31305001328", "title": "The Art of Delightful Design", "sem": "V", "prog_code": "1019", "batch": "5th Sem B.Des PD 2024-28"},
+    {"code": "31305001329", "title": "Branding And Identity Design", "sem": "V", "prog_code": "1019", "batch": "5th Sem B.Des PD 2024-28"},
+    {"code": "31305006322", "title": "Human Factors", "sem": "V", "prog_code": "1019", "batch": "5th Sem B.Des PD 2024-28"},
+    {"code": "31305006329", "title": "Portfolio Design with Voice Agents", "sem": "V", "prog_code": "1019", "batch": "5th Sem B.Des PD 2024-28"},
+    {"code": "31305006324", "title": "Studio- Humanizing Technology", "sem": "V", "prog_code": "1019", "batch": "5th Sem B.Des PD 2024-28"},
+    {"code": "31305006325", "title": "Experience Design", "sem": "V", "prog_code": "1019", "batch": "5th Sem B.Des PD 2024-28"},
+    {"code": "31305006326", "title": "Packaging Design", "sem": "V", "prog_code": "1019", "batch": "5th Sem B.Des PD 2024-28"},
+    {"code": "31305006327", "title": "Speculative design", "sem": "V", "prog_code": "1019", "batch": "5th Sem B.Des PD 2024-28"},
+    
+    # 7th Sem B.Des Product Design Batch 2023-27
+    {"code": "31407001400", "title": "Design Management", "sem": "VII", "prog_code": "1019", "batch": "7th Sem B.Des PD 2023-27"},
+    {"code": "31407006403", "title": "Internship", "sem": "VII", "prog_code": "1019", "batch": "7th Sem B.Des PD 2023-27"},
+    {"code": "31407006405", "title": "System Analysis and Design with Voice Agents", "sem": "VII", "prog_code": "1019", "batch": "7th Sem B.Des PD 2023-27"},
+    
+    # 1st Sem M.Des Product & Service Design Batch 2026-28
+    {"code": "26UDP01317", "title": "Design Appreciation & Storytelling", "sem": "I", "prog_code": "1025", "batch": "1st Sem M.Des PSD 2026-28"},
+    {"code": "26UDP01018", "title": "Design Foundation", "sem": "I", "prog_code": "1025", "batch": "1st Sem M.Des PSD 2026-28"},
+    {"code": "26UDP01019", "title": "Form Studies", "sem": "I", "prog_code": "1025", "batch": "1st Sem M.Des PSD 2026-28"},
+    {"code": "26UDP01020", "title": "Design Studio I", "sem": "I", "prog_code": "1025", "batch": "1st Sem M.Des PSD 2026-28"},
+    {"code": "26UDP01421", "title": "Design Prototyping", "sem": "I", "prog_code": "1025", "batch": "1st Sem M.Des PSD 2026-28"},
+    {"code": "26UDP01122", "title": "Frugal Innovation", "sem": "I", "prog_code": "1025", "batch": "1st Sem M.Des PSD 2026-28"},
+    {"code": "26UDP01123", "title": "Emergent Technology", "sem": "I", "prog_code": "1025", "batch": "1st Sem M.Des PSD 2026-28"},
+    {"code": "26UDP01624", "title": "CAID", "sem": "I", "prog_code": "1025", "batch": "1st Sem M.Des PSD 2026-28"},
+    
+    # 3rd Sem Masters in Industrial Design Batch 2025-27
+    {"code": "32203001602", "title": "Internship", "sem": "III", "prog_code": "1025", "batch": "3rd Sem M.Des ID 2025-27"},
+    {"code": "32203001603", "title": "Entrepreneurship", "sem": "III", "prog_code": "1025", "batch": "3rd Sem M.Des ID 2025-27"},
+    {"code": "32203001604", "title": "Research Methodology", "sem": "III", "prog_code": "1025", "batch": "3rd Sem M.Des ID 2025-27"},
+    {"code": "32203002613", "title": "Generative AI for UI & UX Design", "sem": "III", "prog_code": "1025", "batch": "3rd Sem M.Des ID 2025-27"},
+    {"code": "32203002610", "title": "Studio: Design and Technology", "sem": "III", "prog_code": "1025", "batch": "3rd Sem M.Des ID 2025-27"},
+    {"code": "32203002611", "title": "Lighting Design", "sem": "III", "prog_code": "1025", "batch": "3rd Sem M.Des ID 2025-27"},
+    {"code": "32203002612", "title": "Craft and Technology", "sem": "III", "prog_code": "1025", "batch": "3rd Sem M.Des ID 2025-27"},
 ]
 
-# Search Catalog options mapping
-COURSE_OPTIONS = {}
-for c in MASTER_COURSES:
-    label = f"{c['code']} - {c['title']} ({c['sem']} Sem {c['program']})"
-    COURSE_OPTIONS[label] = c
-COURSE_OPTIONS["✏️ [Custom / Manual Entry]"] = None
+# Build dropdown mapping options
+COURSE_OPTIONS = {
+    f"{c['title']}  |  [{c['code']}]  ({c['batch']})": c for c in COURSES_DATA
+}
+COURSE_OPTIONS["✏️ [Custom / Manual Course Entry]"] = {
+    "code": "", "title": "Custom", "sem": "I", "prog_code": "1019", "batch": "Custom"
+}
 
-# Master Faculty Directory
+# ---------------------------------------------------------
+# 2. UID FACULTY MASTER DIRECTORY
+# ---------------------------------------------------------
 DEFAULT_FACULTY_LIST = {
     "-- None / Leave Empty --": "",
     "✏️ [Manual / Custom Entry]": "CUSTOM",
@@ -126,20 +140,49 @@ DEFAULT_FACULTY_LIST = {
     "Vipul Vinayak Jadhav (15500)": "15500"
 }
 
-DAYS_MAP = {"Mon": 0, "Tue": 1, "Wed": 2, "Thu": 3, "Fri": 4, "Sat": 5}
 SEMESTERS = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII"]
+DAYS_MAP = {"Mon": 0, "Tue": 1, "Wed": 2, "Thu": 3, "Fri": 4, "Sat": 5}
 
 # ---------------------------------------------------------
-# UI LAYOUT
+# UI SETUP
 # ---------------------------------------------------------
 st.title("UID Timetable Auto-Population Tool")
-st.caption("Auto-generate timetable matrices with curriculum search, faculty lookup, and Thursday half-day logic.")
+st.caption("Search Course Title/Code to auto-fetch semester details, configure sections, and export structured timetable schedules.")
 
 col_left, col_right = st.columns([1, 1], gap="large")
 
 with col_left:
-    st.subheader("1. Session & Program Setup")
+    st.subheader("1. Course & Curriculum Selection")
     
+    selected_course_key = st.selectbox(
+        "Search Course Name or Course Code:",
+        options=list(COURSE_OPTIONS.keys()),
+        index=0
+    )
+    
+    course_info = COURSE_OPTIONS[selected_course_key]
+    
+    # Dynamic or Manual Fields
+    if selected_course_key == "✏️ [Custom / Manual Course Entry]":
+        c_code_col, c_type_col = st.columns(2)
+        course_code = c_code_col.text_input("Enter Course Code", value="")
+        course_type = c_type_col.selectbox("Course Type", ["MANDATORY", "ELECTIVE"], index=0)
+        
+        cp1, cp2 = st.columns(2)
+        program_code = cp1.text_input("Program Code", value="1019")
+        semester_code = cp2.selectbox("Semester Code", SEMESTERS, index=0)
+    else:
+        course_code = course_info["code"]
+        default_sem_idx = SEMESTERS.index(course_info["sem"]) if course_info["sem"] in SEMESTERS else 0
+        
+        c_type_col, c_sem_col, c_prog_col = st.columns([1.5, 1, 1])
+        course_type = c_type_col.selectbox("Course Type", ["MANDATORY", "ELECTIVE"], index=0)
+        semester_code = c_sem_col.selectbox("Semester Code", SEMESTERS, index=default_sem_idx)
+        program_code = c_prog_col.text_input("Program Code", value=course_info["prog_code"])
+        
+        st.info(f"📌 Auto-Fetched: **Code:** `{course_code}` | **Sem:** `{semester_code}` | **Prog:** `{program_code}`")
+
+    st.subheader("2. Schedule & Slot Timings")
     today = datetime.date.today()
     c_d1, c_d2 = st.columns(2)
     start_date = c_d1.date_input("Start Date", today)
@@ -153,35 +196,13 @@ with col_left:
     
     thursday_half_day = st.checkbox("Thursday Afternoon Off (Half Day)", value=True)
     
-    st.subheader("2. Subject / Course Search")
-    selected_course_label = st.selectbox("Search by Course Code or Subject Name", list(COURSE_OPTIONS.keys()))
-    course_obj = COURSE_OPTIONS[selected_course_label]
-    
-    if course_obj is not None:
-        c_code_val = course_obj["code"]
-        c_prog_val = course_obj["program_code"]
-        c_sem_val = course_obj["sem"]
-        st.success(f"**Selected:** {course_obj['title']} | Code: `{c_code_val}` | Program: `{c_prog_val}` | Sem: `{c_sem_val}`")
-    else:
-        c_code_val = ""
-        c_prog_val = "1019"
-        c_sem_val = "V"
-
-    c_f1, c_f2 = st.columns(2)
-    program_code = c_f1.text_input("Program Code", value=c_prog_val)
-    semester_code = c_f2.selectbox("Semester", SEMESTERS, index=SEMESTERS.index(c_sem_val) if c_sem_val in SEMESTERS else 0)
-
-    c_f3, c_f4 = st.columns(2)
-    course_code = c_f3.text_input("Course Code", value=c_code_val)
-    course_type = c_f4.selectbox("Course Type", ["MANDATORY", "ELECTIVE"], index=0)
-
-    c_slot1, c_slot2 = st.columns(2)
-    morning_slot_type = c_slot1.selectbox("Morning Slot (09:30 - 13:00)", ["THEORY", "PRACTICAL"], index=0)
-    afternoon_slot_type = c_slot2.selectbox("Afternoon Slot (13:55 - 17:30)", ["PRACTICAL", "THEORY"], index=0)
-    academic_block = st.text_input("Academic Block", value="F")
+    c_slot1, c_slot2, c_blk = st.columns([1.5, 1.5, 1])
+    morning_slot_type = c_slot1.selectbox("Morning Slot", ["THEORY", "PRACTICAL"], index=0)
+    afternoon_slot_type = c_slot2.selectbox("Afternoon Slot", ["PRACTICAL", "THEORY"], index=0)
+    academic_block = c_blk.text_input("Academic Block", value="F")
 
 with col_right:
-    st.subheader("3. Section & Faculty Allocations")
+    st.subheader("3. Dynamic Section Allocations")
     num_sections = st.slider("Number of Sections in Batch", min_value=1, max_value=5, value=4)
     
     section_labels = ["A", "B", "C", "D", "E"][:num_sections]
@@ -199,7 +220,7 @@ with col_right:
         )
         
         if selected_fac_label == "✏️ [Manual / Custom Entry]":
-            fac_code = s_col1.text_input(f"Type Custom Faculty Code (Sec {sec})", key=f"fac_custom_{sec}")
+            fac_code = s_col1.text_input(f"Type Faculty Code (Sec {sec})", key=f"fac_custom_{sec}")
         elif selected_fac_label == "-- None / Leave Empty --":
             fac_code = ""
         else:
@@ -220,7 +241,7 @@ st.markdown("---")
 
 if st.button("Generate Timetable", type="primary", use_container_width=True):
     if not course_code:
-        st.error("Please enter or select a Course Code.")
+        st.error("Please enter or select a valid Course Code.")
     elif start_date > end_date:
         st.error("Start Date must be before or equal to End Date.")
     else:
@@ -235,7 +256,7 @@ if st.button("Generate Timetable", type="primary", use_container_width=True):
                 shift_timing = "09:30 TO 13:00" if (is_thursday and thursday_half_day) else "09:30 TO 17:30"
                 
                 for sec in section_inputs:
-                    # Slot 1: Morning Slot
+                    # Morning Slot
                     rows.append({
                         "Date": date_str,
                         "Program Code": program_code,
@@ -256,7 +277,7 @@ if st.button("Generate Timetable", type="primary", use_container_width=True):
                         "Time Table Type": None
                     })
                     
-                    # Slot 2: Afternoon Slot (Omitted on Thursday if half-day enabled)
+                    # Afternoon Slot (Skipped on Thursday if toggle active)
                     if not (is_thursday and thursday_half_day):
                         rows.append({
                             "Date": date_str,
@@ -283,6 +304,7 @@ if st.button("Generate Timetable", type="primary", use_container_width=True):
         st.success(f"Generated {len(df_result)} schedule rows successfully!")
         st.dataframe(df_result, use_container_width=True)
         
+        # Excel Export Buffer
         buffer = io.BytesIO()
         with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
             df_result.to_excel(writer, sheet_name='Sheet1', index=False)
