@@ -6,7 +6,7 @@ import io
 st.set_page_config(page_title="UID Timetable Generator", layout="wide")
 
 # ---------------------------------------------------------
-# MASTER LOOKUP DATA (UID Only)
+# MASTER DATA (UID Programs, Courses & Faculty Directory)
 # ---------------------------------------------------------
 UID_PROGRAMS = {
     "B.Design (Hons.) Product Design": "1019",
@@ -31,11 +31,71 @@ COURSE_CATALOG = {
 SEMESTERS = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII"]
 DAYS_MAP = {"Mon": 0, "Tue": 1, "Wed": 2, "Thu": 3, "Fri": 4, "Sat": 5}
 
+# Preloaded Faculty Directory from Faculty List July 2026
+DEFAULT_FACULTY_LIST = {
+    "-- None / Leave Empty --": "",
+    "✏️ [Manual / Custom Entry]": "CUSTOM",
+    "Aakanksha Batra (15122)": "15122",
+    "Aayush Amit Bhingare (15184)": "15184",
+    "Abhishek Karmakar (15254)": "15254",
+    "Aditya Chauhan (10084)": "10084",
+    "Aditya Lingam (15067)": "15067",
+    "Agnivesh Sharma (15206)": "15206",
+    "Aigers Liepins (15183)": "15183",
+    "Ajay Bisht (15075)": "15075",
+    "Akhil Tamta (15153)": "15153",
+    "Anahita Suri (15027)": "15027",
+    "Anthony Alphonso (15235)": "15235",
+    "Anu Jain (15204)": "15204",
+    "Anupam Tiwari (15212)": "15212",
+    "Anupam Tomer (15234)": "15234",
+    "Arjun Sengar (15124)": "15124",
+    "Arshkirat Singh Gill (15279)": "15279",
+    "Arun Gupta (15187)": "15187",
+    "Arun Soman (15172)": "15172",
+    "Arunita Paul (15166)": "15166",
+    "Ashish Kumar (15214)": "15214",
+    "Ashish Nar (15325)": "15325",
+    "Ashuj Chawda (15506)": "15506",
+    "Ashwani(Alex) Pawar (15215)": "15215",
+    "DA Siddharth (15445)": "15445",
+    "Dhanush Kumar (15497)": "15497",
+    "Diksha Singh (15250)": "15250",
+    "Dr. Arunita Paul (15166)": "15166",
+    "Dr. Shilpi Bora (15324)": "15324",
+    "Hirock Jyoti Roy (3438)": "3438",
+    "Kishan Chavda (15177)": "15177",
+    "Malekulashter (15342)": "15342",
+    "Mark Timothy (15231)": "15231",
+    "Navneet Kumar (15095)": "15095",
+    "Niral Desai (15104)": "15104",
+    "Parag Sarma (15182)": "15182",
+    "Pradeep Patil (15133)": "15133",
+    "Prem Gunjan (15109)": "15109",
+    "Rakesh Sharma (10039)": "10039",
+    "Ravi N Sachula (3472)": "3472",
+    "Sabyasachi Biswas (15224)": "15224",
+    "Sachin Khankhoje (15121)": "15121",
+    "Sharad Shekar Shetty (15044)": "15044",
+    "Shoeb Iqbal Khan (15255)": "15255",
+    "Shyambihari Shankarprasad Prajapati (15005)": "15005",
+    "Sree Hari B Lal (15546)": "15546",
+    "Sreya Acharyya (15461)": "15461",
+    "Subhash Chandra Bose Yalala (15435)": "15435",
+    "Sundar Mahalingam (10098)": "10098",
+    "Sweta Raj (15222)": "15222",
+    "Umang Shah (15069)": "15069",
+    "Varshin Vala (3333)": "3333",
+    "Venkateshwaran N (15201)": "15201",
+    "Vipul Nagjibhai Prajapati (3479)": "3479",
+    "Vipul Vinayak Jadhav (15500)": "15500"
+}
+
 # ---------------------------------------------------------
 # UI LAYOUT
 # ---------------------------------------------------------
 st.title("UID Timetable Auto-Population Tool")
-st.caption("Generate institutional timetable schedules without redundant data entry.")
+st.caption("Auto-generate timetable matrices with master data mapping, dynamic section allocation & Thursday half-day logic.")
 
 col_left, col_right = st.columns([1, 1], gap="large")
 
@@ -53,7 +113,7 @@ with col_left:
         default=["Mon", "Tue", "Wed", "Thu", "Fri"]
     )
     
-    # Thursday Half-Day Checkbox
+    # Thursday Half-Day Toggle
     thursday_half_day = st.checkbox("Thursday Afternoon Off (Half Day)", value=True)
     
     c_p1, c_p2 = st.columns(2)
@@ -85,16 +145,31 @@ with col_right:
     section_labels = ["A", "B", "C", "D", "E"][:num_sections]
     section_inputs = []
     
-    st.write("Assign Faculty and Room per Section:")
+    st.write("Assign Faculty & Room per Section:")
     for sec in section_labels:
-        s_col1, s_col2, s_col3 = st.columns([1, 2, 2])
-        s_col1.markdown(f"### Sec {sec}")
-        fac = s_col2.text_input(f"Faculty Code (Sec {sec})", key=f"fac_{sec}")
-        room = s_col3.text_input(f"Room Allocation (Sec {sec})", key=f"room_{sec}")
+        st.markdown(f"**Section {sec}**")
+        s_col1, s_col2 = st.columns([3, 2])
+        
+        # Faculty Selection (Preloaded, Custom or Empty)
+        selected_fac_label = s_col1.selectbox(
+            f"Faculty for Sec {sec}", 
+            options=list(DEFAULT_FACULTY_LIST.keys()), 
+            key=f"fac_select_{sec}"
+        )
+        
+        if selected_fac_label == "✏️ [Manual / Custom Entry]":
+            fac_code = s_col1.text_input(f"Type Custom Faculty Code (Sec {sec})", key=f"fac_custom_{sec}")
+        elif selected_fac_label == "-- None / Leave Empty --":
+            fac_code = ""
+        else:
+            fac_code = DEFAULT_FACULTY_LIST[selected_fac_label]
+            
+        room = s_col2.text_input(f"Room Allocation (Sec {sec})", key=f"room_{sec}", placeholder="e.g. F2, E10")
+        
         section_inputs.append({
             "section": sec,
-            "faculty_code": fac.strip(),
-            "room": room.strip()
+            "faculty_code": fac_code.strip() if fac_code else None,
+            "room": room.strip() if room else None
         })
 
 # ---------------------------------------------------------
@@ -102,11 +177,8 @@ with col_right:
 # ---------------------------------------------------------
 st.markdown("---")
 
-if st.button("Generate Timetable", type="primary"):
-    missing = [s['section'] for s in section_inputs if not s['faculty_code'] or not s['room']]
-    if missing:
-        st.error(f"Missing Faculty Code or Room for Section(s): {', '.join(missing)}")
-    elif not course_code:
+if st.button("Generate Timetable", type="primary", use_container_width=True):
+    if not course_code:
         st.error("Please enter a valid Course Code.")
     elif start_date > end_date:
         st.error("Start Date must be before or equal to End Date.")
@@ -122,7 +194,7 @@ if st.button("Generate Timetable", type="primary"):
                 shift_timing = "09:30 TO 13:00" if (is_thursday and thursday_half_day) else "09:30 TO 17:30"
                 
                 for sec in section_inputs:
-                    # Slot 1 (Morning - Always Created)
+                    # Slot 1: Morning (Always created)
                     rows.append({
                         "Date": date_str,
                         "Program Code": program_code,
@@ -143,7 +215,7 @@ if st.button("Generate Timetable", type="primary"):
                         "Time Table Type": None
                     })
                     
-                    # Slot 2 (Afternoon - Skipped on Thursday if box is checked)
+                    # Slot 2: Afternoon (Skipped on Thursday if toggle is on)
                     if not (is_thursday and thursday_half_day):
                         rows.append({
                             "Date": date_str,
