@@ -6,32 +6,67 @@ import io
 st.set_page_config(page_title="UID Timetable Generator", layout="wide")
 
 # ---------------------------------------------------------
-# MASTER DATA (UID Programs, Courses & Faculty Directory)
+# MASTER DATA: COURSES & CURRICULUM
 # ---------------------------------------------------------
-UID_PROGRAMS = {
-    "B.Design (Hons.) Product Design": "1019",
-    "M.Design (Industrial Design)": "1025",
-    "B.Design (Hons.) Interaction Design": "1015",
-    "B.Design (Hons.) Automobile and Transportation Design": "1006",
-    "B.Design (Hons.) Interior & Furniture Design": "1016",
-    "B.Design (Hons.) Visual Communication": "1007",
-    "B.Design (Hons.) Animation & Digital Media": "1003",
-    "B.Design (Hons.) Fashion Design": "1009",
-    "Foundation / Interdisciplinary (UG)": "1116",
-}
+MASTER_COURSES = [
+    # 3rd Sem B.Des PD
+    {"code": "UC012030001", "title": "Personality Development", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "III"},
+    {"code": "31203001203", "title": "Design Research", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "III"},
+    {"code": "31203006211", "title": "Product Visualization", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "III"},
+    {"code": "31203006212", "title": "Form, Aesthetic and Emotion", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "III"},
+    {"code": "31203006207", "title": "Studio- Human Centric Design", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "III"},
+    {"code": "31203006213", "title": "Design Articulation with AI", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "III"},
+    {"code": "31203006214", "title": "Indian Design System", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "III"},
 
-COURSE_CATALOG = {
-    "Design Project 3 (31305006324)": {"code": "31305006324", "type": "MANDATORY"},
-    "Advanced Modeling (31305006329)": {"code": "31305006329", "type": "MANDATORY"},
-    "Design Fundamentals (26UDP01020)": {"code": "26UDP01020", "type": "MANDATORY"},
-    "Industry Project (32203002610)": {"code": "32203002610", "type": "MANDATORY"},
-    "Custom / Manual Entry": {"code": "", "type": "MANDATORY"}
-}
+    # 5th Sem B.Des PD
+    {"code": "UC013050001", "title": "CAID", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "V"},
+    {"code": "31305001325", "title": "Conceptualization and Characterization", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "V"},
+    {"code": "31305001326", "title": "Ad Film Production", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "V"},
+    {"code": "31305001327", "title": "Fashion Styling", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "V"},
+    {"code": "31305001328", "title": "Space Perception", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "V"},
+    {"code": "31305001329", "title": "UX/UI", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "V"},
+    {"code": "31305001330", "title": "The Art of Delightful Design", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "V"},
+    {"code": "31305001331", "title": "Speed Modelling in Clay", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "V"},
+    {"code": "31305006322", "title": "Human Factors", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "V"},
+    {"code": "31305006323", "title": "Portfolio with AI", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "V"},
+    {"code": "31305006324", "title": "Studio- Humanizing Technology", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "V"},
+    {"code": "31305006325", "title": "Experience Design", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "V"},
+    {"code": "31305006326", "title": "Packaging Design", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "V"},
+    {"code": "31305006327", "title": "Speculative design", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "V"},
 
-SEMESTERS = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII"]
-DAYS_MAP = {"Mon": 0, "Tue": 1, "Wed": 2, "Thu": 3, "Fri": 4, "Sat": 5}
+    # 7th Sem B.Des PD
+    {"code": "31407001400", "title": "Design Management", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "VII"},
+    {"code": "31407006403", "title": "Internship", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "VII"},
+    {"code": "31407006404", "title": "Studio- System Analysis and Design", "program": "B.Design (Hons.) Product Design", "program_code": "1019", "sem": "VII"},
 
-# Preloaded Faculty Directory from Faculty List July 2026
+    # 1st Sem M.Des ID
+    {"code": "32101001500", "title": "Professional Communication", "program": "M.Design (Industrial Design)", "program_code": "1025", "sem": "I"},
+    {"code": "32101002501", "title": "Design Foundation", "program": "M.Design (Industrial Design)", "program_code": "1025", "sem": "I"},
+    {"code": "32101002502", "title": "Form Studies", "program": "M.Design (Industrial Design)", "program_code": "1025", "sem": "I"},
+    {"code": "32101002503", "title": "Design Studio I", "program": "M.Design (Industrial Design)", "program_code": "1025", "sem": "I"},
+    {"code": "32101002504", "title": "Design Prototyping", "program": "M.Design (Industrial Design)", "program_code": "1025", "sem": "I"},
+    {"code": "32101002505", "title": "Frugal Innovation", "program": "M.Design (Industrial Design)", "program_code": "1025", "sem": "I"},
+    {"code": "32101002506", "title": "Emergent Technology", "program": "M.Design (Industrial Design)", "program_code": "1025", "sem": "I"},
+    {"code": "32101002507", "title": "CAID & Visualization with AI", "program": "M.Design (Industrial Design)", "program_code": "1025", "sem": "I"},
+
+    # 3rd Sem M.Des ID
+    {"code": "32203001602", "title": "Internship", "program": "M.Design (Industrial Design)", "program_code": "1025", "sem": "III"},
+    {"code": "32203001603", "title": "Entrepreneurship", "program": "M.Design (Industrial Design)", "program_code": "1025", "sem": "III"},
+    {"code": "32203001604", "title": "Research Methodology", "program": "M.Design (Industrial Design)", "program_code": "1025", "sem": "III"},
+    {"code": "32203002609", "title": "User Experience Design", "program": "M.Design (Industrial Design)", "program_code": "1025", "sem": "III"},
+    {"code": "32203002610", "title": "Studio- Design and Technology", "program": "M.Design (Industrial Design)", "program_code": "1025", "sem": "III"},
+    {"code": "32203002611", "title": "Lighting Design", "program": "M.Design (Industrial Design)", "program_code": "1025", "sem": "III"},
+    {"code": "32203002612", "title": "Craft and Technology", "program": "M.Design (Industrial Design)", "program_code": "1025", "sem": "III"},
+]
+
+# Search Catalog options mapping
+COURSE_OPTIONS = {}
+for c in MASTER_COURSES:
+    label = f"{c['code']} - {c['title']} ({c['sem']} Sem {c['program']})"
+    COURSE_OPTIONS[label] = c
+COURSE_OPTIONS["✏️ [Custom / Manual Entry]"] = None
+
+# Master Faculty Directory
 DEFAULT_FACULTY_LIST = {
     "-- None / Leave Empty --": "",
     "✏️ [Manual / Custom Entry]": "CUSTOM",
@@ -91,11 +126,14 @@ DEFAULT_FACULTY_LIST = {
     "Vipul Vinayak Jadhav (15500)": "15500"
 }
 
+DAYS_MAP = {"Mon": 0, "Tue": 1, "Wed": 2, "Thu": 3, "Fri": 4, "Sat": 5}
+SEMESTERS = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII"]
+
 # ---------------------------------------------------------
 # UI LAYOUT
 # ---------------------------------------------------------
 st.title("UID Timetable Auto-Population Tool")
-st.caption("Auto-generate timetable matrices with master data mapping, dynamic section allocation & Thursday half-day logic.")
+st.caption("Auto-generate timetable matrices with curriculum search, faculty lookup, and Thursday half-day logic.")
 
 col_left, col_right = st.columns([1, 1], gap="large")
 
@@ -113,25 +151,29 @@ with col_left:
         default=["Mon", "Tue", "Wed", "Thu", "Fri"]
     )
     
-    # Thursday Half-Day Toggle
     thursday_half_day = st.checkbox("Thursday Afternoon Off (Half Day)", value=True)
     
-    c_p1, c_p2 = st.columns(2)
-    prog_name = c_p1.selectbox("UID Program", list(UID_PROGRAMS.keys()))
-    program_code = UID_PROGRAMS[prog_name]
-    semester_code = c_p2.selectbox("Semester", SEMESTERS, index=4)
+    st.subheader("2. Subject / Course Search")
+    selected_course_label = st.selectbox("Search by Course Code or Subject Name", list(COURSE_OPTIONS.keys()))
+    course_obj = COURSE_OPTIONS[selected_course_label]
     
-    st.subheader("2. Course & Slot Details")
-    course_name = st.selectbox("Course / Subject", list(COURSE_CATALOG.keys()))
-    
-    if course_name == "Custom / Manual Entry":
-        c_code_col, c_type_col = st.columns(2)
-        course_code = c_code_col.text_input("Enter Course Code", value="")
-        course_type = c_type_col.text_input("Course Type", value="MANDATORY")
+    if course_obj is not None:
+        c_code_val = course_obj["code"]
+        c_prog_val = course_obj["program_code"]
+        c_sem_val = course_obj["sem"]
+        st.success(f"**Selected:** {course_obj['title']} | Code: `{c_code_val}` | Program: `{c_prog_val}` | Sem: `{c_sem_val}`")
     else:
-        course_code = COURSE_CATALOG[course_name]["code"]
-        course_type = COURSE_CATALOG[course_name]["type"]
-        st.info(f"Course Code: **{course_code}** | Type: **{course_type}**")
+        c_code_val = ""
+        c_prog_val = "1019"
+        c_sem_val = "V"
+
+    c_f1, c_f2 = st.columns(2)
+    program_code = c_f1.text_input("Program Code", value=c_prog_val)
+    semester_code = c_f2.selectbox("Semester", SEMESTERS, index=SEMESTERS.index(c_sem_val) if c_sem_val in SEMESTERS else 0)
+
+    c_f3, c_f4 = st.columns(2)
+    course_code = c_f3.text_input("Course Code", value=c_code_val)
+    course_type = c_f4.selectbox("Course Type", ["MANDATORY", "ELECTIVE"], index=0)
 
     c_slot1, c_slot2 = st.columns(2)
     morning_slot_type = c_slot1.selectbox("Morning Slot (09:30 - 13:00)", ["THEORY", "PRACTICAL"], index=0)
@@ -139,18 +181,17 @@ with col_left:
     academic_block = st.text_input("Academic Block", value="F")
 
 with col_right:
-    st.subheader("3. Dynamic Section Allocations")
+    st.subheader("3. Section & Faculty Allocations")
     num_sections = st.slider("Number of Sections in Batch", min_value=1, max_value=5, value=4)
     
     section_labels = ["A", "B", "C", "D", "E"][:num_sections]
     section_inputs = []
     
-    st.write("Assign Faculty & Room per Section:")
+    st.write("Assign Faculty & Studio Room per Section:")
     for sec in section_labels:
         st.markdown(f"**Section {sec}**")
         s_col1, s_col2 = st.columns([3, 2])
         
-        # Faculty Selection (Preloaded, Custom or Empty)
         selected_fac_label = s_col1.selectbox(
             f"Faculty for Sec {sec}", 
             options=list(DEFAULT_FACULTY_LIST.keys()), 
@@ -179,7 +220,7 @@ st.markdown("---")
 
 if st.button("Generate Timetable", type="primary", use_container_width=True):
     if not course_code:
-        st.error("Please enter a valid Course Code.")
+        st.error("Please enter or select a Course Code.")
     elif start_date > end_date:
         st.error("Start Date must be before or equal to End Date.")
     else:
@@ -194,7 +235,7 @@ if st.button("Generate Timetable", type="primary", use_container_width=True):
                 shift_timing = "09:30 TO 13:00" if (is_thursday and thursday_half_day) else "09:30 TO 17:30"
                 
                 for sec in section_inputs:
-                    # Slot 1: Morning (Always created)
+                    # Slot 1: Morning Slot
                     rows.append({
                         "Date": date_str,
                         "Program Code": program_code,
@@ -215,7 +256,7 @@ if st.button("Generate Timetable", type="primary", use_container_width=True):
                         "Time Table Type": None
                     })
                     
-                    # Slot 2: Afternoon (Skipped on Thursday if toggle is on)
+                    # Slot 2: Afternoon Slot (Omitted on Thursday if half-day enabled)
                     if not (is_thursday and thursday_half_day):
                         rows.append({
                             "Date": date_str,
@@ -242,7 +283,6 @@ if st.button("Generate Timetable", type="primary", use_container_width=True):
         st.success(f"Generated {len(df_result)} schedule rows successfully!")
         st.dataframe(df_result, use_container_width=True)
         
-        # Excel Export Buffer
         buffer = io.BytesIO()
         with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
             df_result.to_excel(writer, sheet_name='Sheet1', index=False)
