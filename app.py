@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import datetime
-import io
 
 st.set_page_config(page_title="UID Timetable Generator", layout="wide")
 
@@ -9,7 +8,7 @@ st.set_page_config(page_title="UID Timetable Generator", layout="wide")
 # 1. MASTER COURSE & CURRICULUM CATALOG
 # ---------------------------------------------------------
 COURSES_DATA = [
-    # 1st Sem B.Des (PSD) Batch 2026-30
+    # 1st Sem B.Design (PSD) Batch 2026-30
     {"code": "26UDU01001", "title": "Design Essentials", "sem": "I", "prog_code": "1019", "batch": "1st Sem B.Des (PSD) 2026-30"},
     {"code": "26UDU01002", "title": "Visual Representation Skills", "sem": "I", "prog_code": "1019", "batch": "1st Sem B.Des (PSD) 2026-30"},
     {"code": "26UDU01103", "title": "Materials and Craftsmanship I", "sem": "I", "prog_code": "1019", "batch": "1st Sem B.Des (PSD) 2026-30"},
@@ -18,7 +17,7 @@ COURSES_DATA = [
     {"code": "26UDU01406", "title": "Fundamentals of AI", "sem": "I", "prog_code": "1019", "batch": "1st Sem B.Des (PSD) 2026-30"},
     {"code": "26UDU01607", "title": "Digital Tools", "sem": "I", "prog_code": "1019", "batch": "1st Sem B.Des (PSD) 2026-30"},
     
-    # 3rd Sem B.Des Product Design Batch 2025-29
+    # 3rd Sem B. Design Product Design Batch 2025-29
     {"code": "UC012030001", "title": "Personality Development", "sem": "III", "prog_code": "1019", "batch": "3rd Sem B.Des PD 2025-29"},
     {"code": "31203001203", "title": "Design Research", "sem": "III", "prog_code": "1019", "batch": "3rd Sem B.Des PD 2025-29"},
     {"code": "31203006211", "title": "Product Visualization", "sem": "III", "prog_code": "1019", "batch": "3rd Sem B.Des PD 2025-29"},
@@ -27,7 +26,7 @@ COURSES_DATA = [
     {"code": "31203006215", "title": "Design Articulation with AI", "sem": "III", "prog_code": "1019", "batch": "3rd Sem B.Des PD 2025-29"},
     {"code": "31203006214", "title": "Indian Design System", "sem": "III", "prog_code": "1019", "batch": "3rd Sem B.Des PD 2025-29"},
     
-    # 5th Sem B.Des Product Design Batch 2024-28
+    # 5th Sem B. Design Product Design Batch 2024-28
     {"code": "31305006328", "title": "CAID", "sem": "V", "prog_code": "1019", "batch": "5th Sem B.Des PD 2024-28"},
     {"code": "31305001303", "title": "Conceptualization & Characterization", "sem": "V", "prog_code": "1019", "batch": "5th Sem B.Des PD 2024-28"},
     {"code": "31305001304", "title": "Speed Modelling in Clay", "sem": "V", "prog_code": "1019", "batch": "5th Sem B.Des PD 2024-28"},
@@ -45,12 +44,12 @@ COURSES_DATA = [
     {"code": "31305006326", "title": "Packaging Design", "sem": "V", "prog_code": "1019", "batch": "5th Sem B.Des PD 2024-28"},
     {"code": "31305006327", "title": "Speculative design", "sem": "V", "prog_code": "1019", "batch": "5th Sem B.Des PD 2024-28"},
     
-    # 7th Sem B.Des Product Design Batch 2023-27
+    # 7th Sem B.Design Product Design Batch 2023-27
     {"code": "31407001400", "title": "Design Management", "sem": "VII", "prog_code": "1019", "batch": "7th Sem B.Des PD 2023-27"},
     {"code": "31407006403", "title": "Internship", "sem": "VII", "prog_code": "1019", "batch": "7th Sem B.Des PD 2023-27"},
     {"code": "31407006405", "title": "System Analysis and Design with Voice Agents", "sem": "VII", "prog_code": "1019", "batch": "7th Sem B.Des PD 2023-27"},
     
-    # 1st Sem M.Des Product & Service Design Batch 2026-28
+    # 1st Sem M. Design Product & Service Design Batch 2026-28
     {"code": "26UDP01317", "title": "Design Appreciation & Storytelling", "sem": "I", "prog_code": "1025", "batch": "1st Sem M.Des PSD 2026-28"},
     {"code": "26UDP01018", "title": "Design Foundation", "sem": "I", "prog_code": "1025", "batch": "1st Sem M.Des PSD 2026-28"},
     {"code": "26UDP01019", "title": "Form Studies", "sem": "I", "prog_code": "1025", "batch": "1st Sem M.Des PSD 2026-28"},
@@ -70,7 +69,6 @@ COURSES_DATA = [
     {"code": "32203002612", "title": "Craft and Technology", "sem": "III", "prog_code": "1025", "batch": "3rd Sem M.Des ID 2025-27"},
 ]
 
-# Build dropdown mapping options
 COURSE_OPTIONS = {
     f"{c['title']}  |  [{c['code']}]  ({c['batch']})": c for c in COURSES_DATA
 }
@@ -147,7 +145,7 @@ DAYS_MAP = {"Mon": 0, "Tue": 1, "Wed": 2, "Thu": 3, "Fri": 4, "Sat": 5}
 # UI SETUP
 # ---------------------------------------------------------
 st.title("UID Timetable Auto-Population Tool")
-st.caption("Search Course Title/Code to auto-fetch semester details, configure sections, and export structured timetable schedules.")
+st.caption("Search Course Title/Code to auto-fetch details, configure sections, and export structured timetable schedules.")
 
 col_left, col_right = st.columns([1, 1], gap="large")
 
@@ -162,7 +160,6 @@ with col_left:
     
     course_info = COURSE_OPTIONS[selected_course_key]
     
-    # Dynamic or Manual Fields
     if selected_course_key == "✏️ [Custom / Manual Course Entry]":
         c_code_col, c_type_col = st.columns(2)
         course_code = c_code_col.text_input("Enter Course Code", value="")
@@ -304,14 +301,12 @@ if st.button("Generate Timetable", type="primary", use_container_width=True):
         st.success(f"Generated {len(df_result)} schedule rows successfully!")
         st.dataframe(df_result, use_container_width=True)
         
-        # Excel Export Buffer
-        buffer = io.BytesIO()
-        with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
-            df_result.to_excel(writer, sheet_name='Sheet1', index=False)
+        # CSV Export (Direct in-memory encoding)
+        csv_bytes = df_result.to_csv(index=False).encode('utf-8')
         
         st.download_button(
-            label="📥 Download Timetable Excel (.xlsx)",
-            data=buffer.getvalue(),
-            file_name=f"UID_Timetable_{program_code}_Sem{semester_code}_{start_date}.xlsx",
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            label="📥 Download Timetable CSV (.csv)",
+            data=csv_bytes,
+            file_name=f"UID_Timetable_{program_code}_Sem{semester_code}_{start_date}.csv",
+            mime="text/csv"
         )
