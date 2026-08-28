@@ -141,11 +141,17 @@ DEFAULT_FACULTY_LIST = {
 SEMESTERS = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII"]
 DAYS_MAP = {"Mon": 0, "Tue": 1, "Wed": 2, "Thu": 3, "Fri": 4, "Sat": 5}
 
-# Helper to render a course selector
-def render_course_form(label_prefix, key_suffix, default_index=0, default_type="THEORY"):
-    st.markdown(f"##### {label_prefix}")
+SLOT_TIMINGS_MAP = {
+    1: "09:30 TO 11:00",
+    2: "11:20 TO 13:10",
+    3: "14:05 TO 15:40",
+    4: "16:00 TO 17:30"
+}
+
+def render_course_form(label_prefix, key_suffix, default_index=0, default_classif="THEORY"):
+    st.markdown(f"**{label_prefix}**")
     selected_key = st.selectbox(
-        f"Search Subject / Code ({label_prefix})",
+        f"Subject for {label_prefix}",
         options=list(COURSE_OPTIONS.keys()),
         index=default_index,
         key=f"course_select_{key_suffix}"
@@ -154,33 +160,49 @@ def render_course_form(label_prefix, key_suffix, default_index=0, default_type="
     
     if selected_key == "✏️ [Custom / Manual Course Entry]":
         c1, c2 = st.columns(2)
-        code = c1.text_input(f"Course Code ({key_suffix})", key=f"custom_code_{key_suffix}")
-        ctype = c2.selectbox(f"Course Type ({key_suffix})", ["MANDATORY", "ELECTIVE"], index=0, key=f"ctype_{key_suffix}")
+        code = c1.text_input(f"Course Code", key=f"custom_code_{key_suffix}")
+        ctype = c2.selectbox(f"Course Type", ["MANDATORY", "ELECTIVE"], index=0, key=f"ctype_{key_suffix}")
         
         c3, c4, c5 = st.columns(3)
-        sem = c3.selectbox(f"Semester ({key_suffix})", SEMESTERS, index=0, key=f"sem_{key_suffix}")
-        prog = c4.text_input(f"Program Code ({key_suffix})", value="1019", key=f"prog_{key_suffix}")
-        classif = c5.selectbox(f"Classification ({key_suffix})", ["THEORY", "PRACTICAL"], index=0 if default_type == "THEORY" else 1, key=f"classif_{key_suffix}")
+        sem = c3.selectbox(f"Semester", SEMESTERS, index=0, key=f"sem_{key_suffix}")
+        prog = c4.text_input(f"Program Code", value="1019", key=f"prog_{key_suffix}")
+        classif = c5.selectbox(f"Classification", ["THEORY", "PRACTICAL"], index=0 if default_classif == "THEORY" else 1, key=f"classif_{key_suffix}")
     else:
         code = course_info["code"]
         default_sem_idx = SEMESTERS.index(course_info["sem"]) if course_info["sem"] in SEMESTERS else 0
         
         c1, c2, c3, c4 = st.columns([1.5, 1, 1, 1.2])
-        ctype = c1.selectbox(f"Course Type ({key_suffix})", ["MANDATORY", "ELECTIVE"], index=0, key=f"ctype_{key_suffix}")
-        sem = c2.selectbox(f"Semester ({key_suffix})", SEMESTERS, index=default_sem_idx, key=f"sem_{key_suffix}")
-        prog = c3.text_input(f"Prog Code ({key_suffix})", value=course_info["prog_code"], key=f"prog_{key_suffix}")
-        classif = c4.selectbox(f"Classif. ({key_suffix})", ["THEORY", "PRACTICAL"], index=0 if default_type == "THEORY" else 1, key=f"classif_{key_suffix}")
+        ctype = c1.selectbox(f"Course Type", ["MANDATORY", "ELECTIVE"], index=0, key=f"ctype_{key_suffix}")
+        sem = c2.selectbox(f"Semester", SEMESTERS, index=default_sem_idx, key=f"sem_{key_suffix}")
+        prog = c3.text_input(f"Prog Code", value=course_info["prog_code"], key=f"prog_{key_suffix}")
+        classif = c4.selectbox(f"Classification", ["THEORY", "PRACTICAL"], index=0 if default_classif == "THEORY" else 1, key=f"classif_{key_suffix}")
         
-        st.caption(f"📌 Auto-Mapped: **Code:** `{code}` | **Sem:** `{sem}` | **Prog:** `{prog}`")
+        st.caption(f"📌 Mapped: **Code:** `{code}` | **Sem:** `{sem}` | **Prog:** `{prog}`")
         
     return {"code": code, "type": ctype, "sem": sem, "prog": prog, "classification": classif}
+
+
+def render_faculty_dropdown(label, key_name):
+    fac_label = st.selectbox(
+        label, 
+        options=list(DEFAULT_FACULTY_LIST.keys()), 
+        key=f"fac_select_{key_name}"
+    )
+    if fac_label == "✏️ [Manual / Custom Entry]":
+        fac_code = st.text_input(f"Type Faculty Code ({label})", key=f"custom_fac_{key_name}")
+    elif fac_label == "-- None / Leave Empty --":
+        fac_code = ""
+    else:
+        fac_code = DEFAULT_FACULTY_LIST[fac_label]
+        
+    return fac_code.strip() if fac_code else None
 
 
 # ---------------------------------------------------------
 # UI APP LAYOUT
 # ---------------------------------------------------------
 st.title("UID Timetable Auto-Population Tool")
-st.caption("Generate institutional timetable schedules with automated slot-split and section allocations.")
+st.caption("Generate institutional timetable schedules across 4 daily slots with automated half-day mirroring and CSV export.")
 
 # =========================================================
 # 1. SCHEDULE & SLOT TIMINGS (First)
@@ -215,31 +237,46 @@ st.subheader("2. Course & Curriculum Selection")
 
 c_top1, c_top2 = st.columns([2, 1])
 with c_top1:
-    slot_mode = st.radio(
-        "Subject Mapping Mode:",
-        options=["Different Subject for Each Half (Standard)", "Same Subject for Entire Day (Earlier Mode)"],
-        horizontal=True
-    )
+    st.write("Configure slot automations or customize each slot individually:")
+    sync_morning = st.checkbox("🔄 Auto-fill Morning Slot 2 from Slot 1 (Default)", value=True)
+    sync_afternoon = st.checkbox("🔄 Auto-fill Afternoon Slot 4 from Slot 3 (Default)", value=True)
 
 with c_top2:
     num_sections = st.slider("Number of Sections in Batch", min_value=1, max_value=5, value=4)
 
-st.markdown("#### Subject Details")
-if slot_mode == "Different Subject for Each Half (Standard)":
-    m_col, a_col = st.columns(2, gap="large")
-    with m_col:
-        morning_course = render_course_form("Morning Slot (09:30 - 13:00)", "morning", default_index=0, default_type="THEORY")
-    with a_col:
-        afternoon_course = render_course_form("Afternoon Slot (13:55 - 17:30)", "afternoon", default_index=1, default_type="PRACTICAL")
-else:
-    # Single Course Mode
-    unified_course = render_course_form("Full-Day Course", "unified", default_index=0, default_type="THEORY")
-    c_cls1, c_cls2 = st.columns(2)
-    m_cls = c_cls1.selectbox("Morning Classification", ["THEORY", "PRACTICAL"], index=0)
-    a_cls = c_cls2.selectbox("Afternoon Classification", ["PRACTICAL", "THEORY"], index=0)
+m_col, a_col = st.columns(2, gap="large")
+
+# Morning Half Config
+with m_col:
+    st.markdown("### 🌅 Morning Slots")
+    slot1_cfg = render_course_form("Slot 1 (09:30 - 11:00)", "slot_1", default_index=0, default_classif="THEORY")
     
-    morning_course = {**unified_course, "classification": m_cls}
-    afternoon_course = {**unified_course, "classification": a_cls}
+    if sync_morning:
+        st.info("ℹ️ Slot 2 (11:20 - 13:10) is auto-syncing Course details from Slot 1.")
+        # Allow classification override for slot 2 if needed (e.g. Practical follow-up)
+        s2_classif = st.selectbox("Slot 2 Classification", ["PRACTICAL", "THEORY"], index=0, key="s2_classif_sync")
+        slot2_cfg = {**slot1_cfg, "classification": s2_classif}
+    else:
+        slot2_cfg = render_course_form("Slot 2 (11:20 - 13:10)", "slot_2", default_index=0, default_classif="PRACTICAL")
+
+# Afternoon Half Config
+with a_col:
+    st.markdown("### 🌇 Afternoon Slots")
+    slot3_cfg = render_course_form("Slot 3 (14:05 - 15:40)", "slot_3", default_index=1, default_classif="THEORY")
+    
+    if sync_afternoon:
+        st.info("ℹ️ Slot 4 (16:00 - 17:30) is auto-syncing Course details from Slot 3.")
+        s4_classif = st.selectbox("Slot 4 Classification", ["PRACTICAL", "THEORY"], index=0, key="s4_classif_sync")
+        slot4_cfg = {**slot3_cfg, "classification": s4_classif}
+    else:
+        slot4_cfg = render_course_form("Slot 4 (16:00 - 17:30)", "slot_4", default_index=1, default_classif="PRACTICAL")
+
+slots_configuration = {
+    1: slot1_cfg,
+    2: slot2_cfg,
+    3: slot3_cfg,
+    4: slot4_cfg
+}
 
 st.markdown("---")
 
@@ -255,67 +292,48 @@ st.write("Assign Faculty & Studio Room per Section:")
 for sec in section_labels:
     st.markdown(f"#### Section {sec}")
     
-    if slot_mode == "Different Subject for Each Half (Standard)":
-        s_col1, s_col2, s_col3 = st.columns([2.5, 2.5, 1.5])
-        
-        # Morning Faculty
-        m_fac_label = s_col1.selectbox(
-            f"Morning Faculty (Sec {sec})", 
-            options=list(DEFAULT_FACULTY_LIST.keys()), 
-            key=f"fac_m_{sec}"
-        )
-        if m_fac_label == "✏️ [Manual / Custom Entry]":
-            m_fac_code = s_col1.text_input(f"Custom Morning Fac Code (Sec {sec})", key=f"fac_custom_m_{sec}")
-        elif m_fac_label == "-- None / Leave Empty --":
-            m_fac_code = ""
-        else:
-            m_fac_code = DEFAULT_FACULTY_LIST[m_fac_label]
+    # Layout dynamically adapts based on sync toggles
+    if sync_morning and sync_afternoon:
+        col_m, col_a, col_r = st.columns([2.5, 2.5, 1.5])
+        with col_m:
+            fac_m = render_faculty_dropdown(f"Morning Faculty (Slots 1 & 2)", f"fac_m_{sec}")
+            fac_s1, fac_s2 = fac_m, fac_m
+        with col_a:
+            fac_a = render_faculty_dropdown(f"Afternoon Faculty (Slots 3 & 4)", f"fac_a_{sec}")
+            fac_s3, fac_s4 = fac_a, fac_a
+        with col_r:
+            room = st.text_input("Studio Room", key=f"room_{sec}", placeholder="e.g. F2, E10")
 
-        # Afternoon Faculty
-        a_fac_label = s_col2.selectbox(
-            f"Afternoon Faculty (Sec {sec})", 
-            options=list(DEFAULT_FACULTY_LIST.keys()), 
-            key=f"fac_a_{sec}"
-        )
-        if a_fac_label == "✏️ [Manual / Custom Entry]":
-            a_fac_code = s_col2.text_input(f"Custom Afternoon Fac Code (Sec {sec})", key=f"fac_custom_a_{sec}")
-        elif a_fac_label == "-- None / Leave Empty --":
-            a_fac_code = ""
-        else:
-            a_fac_code = DEFAULT_FACULTY_LIST[a_fac_label]
-
-        # Studio Room
-        room = s_col3.text_input(f"Room Allocation", key=f"room_{sec}", placeholder="e.g. F2, E10")
-
-        section_allocations.append({
-            "section": sec,
-            "morning_faculty": m_fac_code.strip() if m_fac_code else None,
-            "afternoon_faculty": a_fac_code.strip() if a_fac_code else None,
-            "room": room.strip() if room else None
-        })
     else:
-        # Same Faculty for Both Slots
-        s_col1, s_col2 = st.columns([3, 2])
-        fac_label = s_col1.selectbox(
-            f"Faculty for Sec {sec}", 
-            options=list(DEFAULT_FACULTY_LIST.keys()), 
-            key=f"fac_uni_{sec}"
-        )
-        if fac_label == "✏️ [Manual / Custom Entry]":
-            fac_code = s_col1.text_input(f"Custom Fac Code (Sec {sec})", key=f"fac_custom_uni_{sec}")
-        elif fac_label == "-- None / Leave Empty --":
-            fac_code = ""
-        else:
-            fac_code = DEFAULT_FACULTY_LIST[fac_label]
+        # Granular 4-slot faculty inputs
+        col1, col2, col3, col4, col5 = st.columns([2, 2, 2, 2, 1.5])
+        with col1:
+            fac_s1 = render_faculty_dropdown("Slot 1 Fac", f"fac_s1_{sec}")
+        with col2:
+            if sync_morning:
+                fac_s2 = fac_s1
+                st.caption(f"Syncing Slot 1: `{fac_s1 or 'Empty'}`")
+            else:
+                fac_s2 = render_faculty_dropdown("Slot 2 Fac", f"fac_s2_{sec}")
+        with col3:
+            fac_s3 = render_faculty_dropdown("Slot 3 Fac", f"fac_s3_{sec}")
+        with col4:
+            if sync_afternoon:
+                fac_s4 = fac_s3
+                st.caption(f"Syncing Slot 3: `{fac_s3 or 'Empty'}`")
+            else:
+                fac_s4 = render_faculty_dropdown("Slot 4 Fac", f"fac_s4_{sec}")
+        with col5:
+            room = st.text_input("Studio Room", key=f"room_{sec}", placeholder="e.g. F2, E10")
 
-        room = s_col2.text_input(f"Room Allocation (Sec {sec})", key=f"room_uni_{sec}", placeholder="e.g. F2, E10")
-
-        section_allocations.append({
-            "section": sec,
-            "morning_faculty": fac_code.strip() if fac_code else None,
-            "afternoon_faculty": fac_code.strip() if fac_code else None,
-            "room": room.strip() if room else None
-        })
+    section_allocations.append({
+        "section": sec,
+        "fac_slot_1": fac_s1,
+        "fac_slot_2": fac_s2,
+        "fac_slot_3": fac_s3,
+        "fac_slot_4": fac_s4,
+        "room": room.strip() if room else None
+    })
 
 # ---------------------------------------------------------
 # GENERATION ENGINE
@@ -323,8 +341,10 @@ for sec in section_labels:
 st.markdown("---")
 
 if st.button("Generate Timetable", type="primary", use_container_width=True):
-    if not morning_course["code"] or not afternoon_course["code"]:
-        st.error("Please ensure valid course codes are entered/selected for both morning and afternoon slots.")
+    # Basic validation
+    empty_courses = [f"Slot {k}" for k, v in slots_configuration.items() if not v["code"]]
+    if empty_courses:
+        st.error(f"Missing Course Code for: {', '.join(empty_courses)}")
     elif start_date > end_date:
         st.error("Start Date must be before or equal to End Date.")
     else:
@@ -336,43 +356,25 @@ if st.button("Generate Timetable", type="primary", use_container_width=True):
             if cur_date.weekday() in active_day_ints:
                 is_thursday = (cur_date.weekday() == 3)
                 date_str = cur_date.strftime("%Y-%m-%d")
-                shift_timing = "09:30 TO 13:00" if (is_thursday and thursday_half_day) else "09:30 TO 17:30"
+                shift_timing = "09:30 TO 13:10" if (is_thursday and thursday_half_day) else "09:30 TO 17:30"
                 
-                for sec in section_allocations:
-                    # Morning Slot (09:30 - 13:00)
-                    rows.append({
-                        "Date": date_str,
-                        "Program Code": morning_course["prog"],
-                        "Semester Code": morning_course["sem"],
-                        "Year": None,
-                        "Course Classification": morning_course["classification"],
-                        "Course Code": morning_course["code"],
-                        "Course Type": morning_course["type"],
-                        "Faculty Code": sec["morning_faculty"],
-                        "Shift Timing": shift_timing,
-                        "Slot Time": "09:30 TO 13:00",
-                        "Section Code": sec["section"],
-                        "Group": None,
-                        "Academic Block": academic_block,
-                        "Room Allocation": sec["room"],
-                        "Combined Class": None,
-                        "Mode of Class": "OFFLINE",
-                        "Time Table Type": None
-                    })
-                    
-                    # Afternoon Slot (13:55 - 17:30) - Skipped if Thursday Half-Day is active
-                    if not (is_thursday and thursday_half_day):
+                # Determine slots to generate for this date
+                active_slots = [1, 2] if (is_thursday and thursday_half_day) else [1, 2, 3, 4]
+                
+                for slot_num in active_slots:
+                    s_cfg = slots_configuration[slot_num]
+                    for sec in section_allocations:
                         rows.append({
                             "Date": date_str,
-                            "Program Code": afternoon_course["prog"],
-                            "Semester Code": afternoon_course["sem"],
+                            "Program Code": s_cfg["prog"],
+                            "Semester Code": s_cfg["sem"],
                             "Year": None,
-                            "Course Classification": afternoon_course["classification"],
-                            "Course Code": afternoon_course["code"],
-                            "Course Type": afternoon_course["type"],
-                            "Faculty Code": sec["afternoon_faculty"],
+                            "Course Classification": s_cfg["classification"],
+                            "Course Code": s_cfg["code"],
+                            "Course Type": s_cfg["type"],
+                            "Faculty Code": sec[f"fac_slot_{slot_num}"],
                             "Shift Timing": shift_timing,
-                            "Slot Time": "13:55 TO 17:30",
+                            "Slot Time": SLOT_TIMINGS_MAP[slot_num],
                             "Section Code": sec["section"],
                             "Group": None,
                             "Academic Block": academic_block,
@@ -387,14 +389,14 @@ if st.button("Generate Timetable", type="primary", use_container_width=True):
         st.success(f"Generated {len(df_result)} schedule rows successfully!")
         st.dataframe(df_result, use_container_width=True)
         
-        # CSV Export
+        # Export as CSV
         csv_bytes = df_result.to_csv(index=False).encode('utf-8')
-        out_prog = morning_course["prog"]
-        out_sem = morning_course["sem"]
+        sample_prog = slot1_cfg["prog"]
+        sample_sem = slot1_cfg["sem"]
         
         st.download_button(
             label="📥 Download Timetable CSV (.csv)",
             data=csv_bytes,
-            file_name=f"UID_Timetable_{out_prog}_Sem{out_sem}_{start_date}.csv",
+            file_name=f"UID_Timetable_{sample_prog}_Sem{sample_sem}_{start_date}.csv",
             mime="text/csv"
         )
