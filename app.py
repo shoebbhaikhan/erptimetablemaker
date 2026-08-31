@@ -356,7 +356,7 @@ if st.button("Generate Timetable", type="primary", use_container_width=True):
             if cur_date.weekday() in active_day_ints:
                 is_thursday = (cur_date.weekday() == 3)
                 date_str = cur_date.strftime("%Y-%m-%d")
-                shift_timing = "09:30 TO 13:10" if (is_thursday and thursday_half_day) else "09:30 TO 17:30"
+                shift_timing = "09:30 TO 17:30"
                 
                 # Determine slots to generate for this date
                 active_slots = [1, 2] if (is_thursday and thursday_half_day) else [1, 2, 3, 4]
